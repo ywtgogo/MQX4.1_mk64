@@ -17,7 +17,9 @@ bool wifi_cfg_set(void)
 {
 	lwgpio_set_value(&wifi_cfgset, LWGPIO_VALUE_LOW);
 	lwgpio_set_value(&wifi_reset, LWGPIO_VALUE_LOW);
+	//lwgpio_set_value(&wifi_power, LWGPIO_VALUE_LOW);
 	_time_delay(2000);
+	//lwgpio_set_value(&wifi_power, LWGPIO_VALUE_HIGH);
 	lwgpio_set_value(&wifi_reset, LWGPIO_VALUE_HIGH);
 	printf("\nWIFI正在进入配置");
 	for(int i=0; i<15; i++)
@@ -34,6 +36,7 @@ bool wifi_cfg_set(void)
 			return TRUE;
 		}
 	}
+	lwgpio_set_value(&wifi_cfgset, LWGPIO_VALUE_HIGH);
 	printf("\nWIFI进入配置失败，请重新对WIFI上电");
 	return FALSE;
 }

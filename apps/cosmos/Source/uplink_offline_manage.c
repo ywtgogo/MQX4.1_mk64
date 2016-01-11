@@ -7,22 +7,22 @@
 *	离线数据管理 TASK
 */
 #pragma   pack(1)
-typedef struct
-{
-   uint16_t 	YEAR;	/* 1970 - 2099 */
-   uint16_t 	MONTH;	/* 1 - 12 */
-   uint16_t 	DAY;		/* 1 - 31 (depending on month) */
-   uint16_t 	HOUR;	/* 0 - 23 */
-   uint16_t 	MINUTE;	/* 0 - 59 */
-   uint16_t 	SECOND;	/* 0 - 59 */
-}SAVE_TIME;
+//typedef struct
+//{
+//   uint16_t 	YEAR;	/* 1970 - 2099 */
+//   uint16_t 	MONTH;	/* 1 - 12 */
+//   uint16_t 	DAY;	/* 1 - 31 (depending on month) */
+//   uint16_t 	HOUR;	/* 0 - 23 */
+//   uint16_t 	MINUTE;	/* 0 - 59 */
+//   uint16_t 	SECOND;	/* 0 - 59 */
+//}SAVE_TIME;
 
 typedef struct 
 {
 	uint8_t  	type;
 	uint32_t    Uid;
 	uint8_t	  	dummy;
-	SAVE_TIME 	save_time;
+	uint32_t 	save_time;
 	uint16_t   	len;
 	uint8_t    	data[51*22];
 } SAVE_DATA_BUFFER;
@@ -34,7 +34,9 @@ extern int32_t MFS_filesync(MQX_FILE_PTR fd_ptr);
 void uplk_offline_task(uint32_t	parameter)
 {
 	TIME_STRUCT 	mqx_time;
+	TIME_STRUCT 	save_time;
 	DATE_STRUCT 	mqx_date_time;
+	DATE_STRUCT 	save_date_time;
 	
 	uint32_t		len;
 	uint32_t 		freesize;
@@ -54,7 +56,7 @@ void uplk_offline_task(uint32_t	parameter)
 	offline_package.Uid		= htonl(CosmosInfoPtr->CosmosUid);
 	offline_package.dummy	= 0x00;
 	//offline_package.save_time
-	offline_package.len		= 0x6204;
+	offline_package.len		= htons(0x0462);
 	_mem_zero(offline_package.data, 51*22);
 	/* 方法二: 不退出任务，在发送完成后block */
 	
@@ -70,34 +72,6 @@ void uplk_offline_task(uint32_t	parameter)
 		snprintf(logfilename, sizeof(logfilename), "%04d%02d%02d", mqx_date_time.YEAR, mqx_date_time.MONTH,mqx_date_time.DAY);	
 		snprintf(path, sizeof(path), "%s%s", "c:/datalog/", logfilename);
 		printf("\nCheck date:%.8s offline file", logfilename);
-//		if (MFS_alloc_path(&path) != MFS_NO_ERROR) {
-//		   printf("Error, unable to allocate memory for paths\n" );
-//		} else {
-//		   error = _io_rel2abs(path,shell_ptr->CURRENT_DIR,(char *) argv[1],PATHNAME_SIZE,shell_ptr->CURRENT_DEVICE_NAME);
-//		   if(!error)
-//		   {
-//			  fd = fopen(abs_path, "r");
-//		   }
-//		   MFS_free_path(abs_path);		
-//		   if (fd && !error)  {
-//			  bytes = 0;
-//			  if (fseek(fd, offset, seek_mode) != IO_ERROR)  {
-//				 printf("Reading from %s:\n", argv[1]);
-//				 while ((c=fgetc(fd))>=0) {
-//					fputc(c, stdout);
-//					if (++bytes == count) break;
-//				 } 
-//				 printf("\nDone.\n");
-//				 fclose(fd);
-//			  } else  {
-//				 printf("Error, unable to seek file %s.\n", argv[1] );
-//				 return_code = SHELL_EXIT_ERROR;
-//			  }
-//		   } else  {
-//			  printf("Error, unable to open file %s.\n", argv[1] );
-//			  return_code = SHELL_EXIT_ERROR;
-//		   }
-//		}
 		/* 打开文件，方式为"r" */
 		fd=fopen(path,"r");
 		if (fd == NULL){
@@ -114,8 +88,16 @@ void uplk_offline_task(uint32_t	parameter)
 			rbuff[len-1] = '\0';  /*去掉换行符*/
 			printf("\n%s %d ",rbuff,len - 1);
 
-			/* 记录并解析数据时间 */
+			/* 解析并填充时间数据 */
+			save_date_time.YEAR		= mqx_date_time.YEAR;
+			save_date_time.MONTH	= mqx_date_time.MONTH;
+			save_date_time.DAY		= mqx_date_time.DAY;
+			save_date_time.HOUR		= (rbuff[1]-'0')<<4 |(rbuff[2]-'0');
+			save_date_time.MINUTE	= (rbuff[4]-'0')<<4 |(rbuff[5]-'0');
+			save_date_time.SECOND	= (rbuff[7]-'0')<<4 |(rbuff[8]-'0');
+			_time_from_date(&save_date_time, &save_time);
 			
+			offline_package.save_time = htonl(save_time.SECONDS);
 			/* 将数据转换为16进制 */
 			StrToHex(rbuff+10, swbuf);
 			
