@@ -120,7 +120,7 @@ void uplink_recv_mix(char *buffer, uint32_t buflen, uint32_t socketID)
 			{
 				case	UPLK_CFG_10_FUNC:
 					printf("\ncfg 10");
-					cfg_10_save(buffer+6);
+					cfg_10_save(buffer);
 					break;
 				case	UPLK_CFG_51_FUNC:
 					printf("\ncfg 51");

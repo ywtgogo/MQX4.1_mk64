@@ -189,7 +189,7 @@ typedef struct RFD_BIND//45
 	uint16_t	TargFfd;
 } RFD_BIND_t, * RFD_BIND_PTR;
 
-typedef struct RF_ID_MODIFY//45
+typedef struct RF_ID_MODIFY//10
 {
 	uint16_t	DestId;
 	uint8_t		FuncCode;
@@ -342,8 +342,13 @@ typedef struct TIME_SYNC{
 
 #pragma   pack()
 
-
-uint32_t cmd_setrfroute(uchar *targid_ptr, uchar *routetab_ptr);
-
+uint32_t auto_setffdroute(void);
+uint32_t auto_setrfdtab(void);
+uint32_t auto_setrfdbind(void);
+uint32_t auto_subnet_cfg(void);
+uint32_t cmd_getreg(uchar *targffdid, uchar *targrfdid, uchar *regoffset);
+uint32_t cmd_setreg(uchar *targffdid, uchar *targrfdid, uchar *paramaddr, uchar *paramdest);
+uint32_t cmd_setpvpoweron(uchar *targid, uchar *rfdid);
+uint32_t cmd_setpvpoweroff(uchar *targid, uchar *rfdid);
 
 #endif 

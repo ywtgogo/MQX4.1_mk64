@@ -212,20 +212,47 @@ extern unsigned char __DEFAULT_INTERRUPT_STACK_SIZE[];
 */
 #define BSP_FLASH_DEVICE    FLASH_W25Q64          //ftu_evk
 //#define BSP_FLASH_DEVICE      AT26DF081         // on tower
-
+   
 /*
-** rs485
+** rs485 -- in Convertergy Cosmos II
 */
-#define BSP_RS485_EN       1
+#define BSP_RS485_EN       			0	// Set 1 to enable AUTO TX-RX SWITCH Function and the pin must set to PTE11
+#define BSP_RS485_TX_RX_SW          (GPIO_PORT_E | GPIO_PIN26)
+#define BSP_RS485_TX_RX_SW_MUX_GPIO (LWGPIO_MUX_E26_GPIO)
 
+#define BSP_RF_GATEWAY_RST          (GPIO_PORT_E | GPIO_PIN11)
+#define BSP_RF_GATEWAY_RST_MUX_GPIO (LWGPIO_MUX_E11_GPIO)
 /*
 ** GPIO board specifications
 */
 #define BSP_POWER_RF				(GPIO_PORT_E | GPIO_PIN12)
 #define BSP_RESET_RF				(GPIO_PORT_E | GPIO_PIN11)
+
+//UART Tx / Rx Pins,used in Gateway reset function
+//Tx Pin
+#define BSP_UART_TX_RF				(GPIO_PORT_E | GPIO_PIN8)
+#define BSP_RF_GATEWAY_UART_TX_MUX_GPIO (LWGPIO_MUX_E8_GPIO)
+//Rx Pin
+#define BSP_UART_RX_RF				(GPIO_PORT_E | GPIO_PIN9)
+#define BSP_RF_GATEWAY_UART_RX_MUX_GPIO (LWGPIO_MUX_E9_GPIO)
+
+//HSK signal
+#define BSP_HSK_RF					(GPIO_PORT_E | GPIO_PIN10)
+#define BSP_RF_GATEWAY_HSK_MUX_GPIO (LWGPIO_MUX_E10_GPIO)
+
 #define BSP_RESET_ETH				(GPIO_PORT_B | GPIO_PIN8)
 #define BSP_POWER_WIFI				(GPIO_PORT_D | GPIO_PIN9)
 #define BSP_RESET_WIFI				(GPIO_PORT_D | GPIO_PIN8)
+
+//WiFi UART Pins ,used in WiFi reset routine
+//Tx pin
+#define BSP_UART_TX_WIFI			(GPIO_PORT_D | GPIO_PIN7)
+#define BSP_RF_WIFI_UART_TX_MUX_GPIO (LWGPIO_MUX_D7_GPIO)
+
+//Rx pin
+#define BSP_UART_RX_WIFI			(GPIO_PORT_D | GPIO_PIN6)
+#define BSP_RF_WIFI_UART_RX_MUX_GPIO (LWGPIO_MUX_D6_GPIO)
+
 
 #define BSP_AP_WIFI					(GPIO_PORT_D | GPIO_PIN4)
 #define BSP_CFGSET_WIFI				(GPIO_PORT_D | GPIO_PIN3)
@@ -242,6 +269,9 @@ extern unsigned char __DEFAULT_INTERRUPT_STACK_SIZE[];
 #define BSP_BEAT_LED                (GPIO_PORT_D | GPIO_PIN0)
 #define BSP_RED_LED                 (GPIO_PORT_B | GPIO_PIN21)
 #define BSP_GREEN_LED               (GPIO_PORT_B | GPIO_PIN22)
+
+
+
 //-----------------------------------------
 #define BSP_RFLED_MUX_GPIO           (LWGPIO_MUX_B20_GPIO)
 #define BSP_SERLED_MUX_GPIO          (LWGPIO_MUX_C18_GPIO)
@@ -258,13 +288,18 @@ extern unsigned char __DEFAULT_INTERRUPT_STACK_SIZE[];
 #define BSP_PREF_MUX_GPIO         	(LWGPIO_MUX_D2_GPIO)
 #define BSP_SECD_MUX_GPIO          	(LWGPIO_MUX_D1_GPIO)
 
-#define BSP_MONITOR_MUX_GPIO       	 (LWGPIO_MUX_B7_GPIO)
+#define BSP_MONITOR_MUX_GPIO       	(LWGPIO_MUX_B7_GPIO)
 /* definitions for user applications */
-#define BSP_MONITOR_MUX_IRQ          (BSP_MONITOR_MUX_GPIO)
+#define BSP_MONITOR_MUX_IRQ         (BSP_MONITOR_MUX_GPIO)
 
 /* The ext wdog should be feed within 1.6S */
+/*Watchdog -- MCP1320MT-29LE/OT */
+#define BSP_WATCHDOG_WDI_GPIO		(GPIO_PORT_A | GPIO_PIN19)
+#define BSP_WDI_MUX_GPIO          	(LWGPIO_MUX_A19_GPIO)
+
 #define BSP_EXT_WATCHDOG_WDI_PORT       PORTA_BASE_PTR
-#define BSP_EXT_WATCHDOG_WDI_PIN		24
+#define BSP_EXT_WATCHDOG_WDI_PIN		19
+
 #define BSP_EXT_WATCHDOG_FEED_INTERVAL	1000	/*in ms*/
 
 
@@ -685,7 +720,7 @@ extern unsigned char __DEFAULT_INTERRUPT_STACK_SIZE[];
 ** MGCT: <option type="number" min="0" max="256"/>
 */
 #ifndef BSPCFG_SCI3_QUEUE_SIZE
-    #define BSPCFG_SCI3_QUEUE_SIZE             256
+    #define BSPCFG_SCI3_QUEUE_SIZE             64
 #endif
 
 /** MGCT: </category> */
@@ -713,7 +748,7 @@ extern unsigned char __DEFAULT_INTERRUPT_STACK_SIZE[];
 ** MGCT: <option type="number" min="0" max="115200"/>
 */
 #ifndef BSPCFG_SCI4_BAUD_RATE
-    #define BSPCFG_SCI4_BAUD_RATE             115200
+    #define BSPCFG_SCI4_BAUD_RATE             38400
 #endif
 
 /*
@@ -1029,7 +1064,7 @@ extern unsigned char __USER_AREA_END[];
 ** MGCT: <option type="number"/>
 */
 #ifndef BSP_DEFAULT_MAX_MSGPOOLS
-    #define BSP_DEFAULT_MAX_MSGPOOLS                          (2L)
+    #define BSP_DEFAULT_MAX_MSGPOOLS                          (10L)
 #endif
 
 /*

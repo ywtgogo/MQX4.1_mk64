@@ -35,6 +35,7 @@ void dblk_at_task(uint32_t parameter)
 		}else{
 			printf("stdin:%s\n", buf);
 			/* 进入接收cfg处理函数 */
+			
 			download_cfgmix(buf);
 		}
 	}

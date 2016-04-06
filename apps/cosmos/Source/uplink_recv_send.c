@@ -97,6 +97,12 @@ uint32_t uplk_send(char *buffer, uint16_t buflen, ...)
 		return count;
 	}
 	
+	print_sys_time();
+	printf("\n NETSEND: ");
+	for (int i=0 ;  i<buflen; i++ ) {
+	   printf("%.2x ", buffer[i]);
+	}
+	
 	i = CosmosTcpPtr->CellCount;
 	while(i--)
 	{	

@@ -5,6 +5,7 @@
 #include "kwtj_GWII.h"
 #include "CRC16_CODE.h"
 #include "internal_mem.h"
+//#include <timer.h>
 
 //全局标志位，表明WIFI模块是否正常连接TCP1
 bool WifiTcp1Stat = FALSE;
@@ -16,29 +17,18 @@ extern int32_t MFS_filesync(MQX_FILE_PTR);
 bool wifi_cfg_set(void)
 {
 	lwgpio_set_value(&wifi_cfgset, LWGPIO_VALUE_LOW);
-	lwgpio_set_value(&wifi_reset, LWGPIO_VALUE_LOW);
-	//lwgpio_set_value(&wifi_power, LWGPIO_VALUE_LOW);
-	_time_delay(2000);
-	//lwgpio_set_value(&wifi_power, LWGPIO_VALUE_HIGH);
-	lwgpio_set_value(&wifi_reset, LWGPIO_VALUE_HIGH);
-	printf("\nWIFI正在进入配置");
-	for(int i=0; i<15; i++)
-	{
-		_time_delay(1000);
-		//检测设置完成的管脚，低-进入设置，高继续等待
-		if(lwgpio_get_value(&wifi_cfgget)) {
-			//printf("\nWIFI正在进入配置");
-			continue;
-		}else {
-			lwgpio_set_value(&wifi_cfgset, LWGPIO_VALUE_HIGH);
-			//是否需要对WIFI重启动
-			printf("\nWIFI进入配置模式成功，请使用手机APP对设备发送配置信息");
-			return TRUE;
-		}
-	}
+	printf("\nWIFI正在进入配置,等待8s...");
+	//需要全局信号标志量
+	_time_delay(5000);
 	lwgpio_set_value(&wifi_cfgset, LWGPIO_VALUE_HIGH);
-	printf("\nWIFI进入配置失败，请重新对WIFI上电");
-	return FALSE;
+	_time_delay(3000);
+	if(lwgpio_get_value(&wifi_cfgget)) {
+		printf("\nWIFI进入配置失败，请重新对WIFI上电");
+		return FALSE;
+	}else {
+		printf("\nWIFI进入配置模式成功，请使用手机APP对设备发送配置信息");
+		return TRUE;
+	}
 }
 
 bool wifilk_check(void)
@@ -53,6 +43,7 @@ bool wifilk_check(void)
 		//printf("\nWIFI未连接AP");
 		lwgpio_set_value(&gw_plug_led, LWGPIO_VALUE_HIGH);
 		lwgpio_set_value(&gw_ser_led, LWGPIO_VALUE_HIGH);
+		last = FALSE;
 		return FALSE;
 	}
 	lwgpio_set_value(&gw_plug_led, LWGPIO_VALUE_LOW);
@@ -85,6 +76,8 @@ uint32_t wifilk_wirte(uchar *wbuf, uint16_t len)
 {
     uint32_t 		count = 0;
 	
+	if (WifiTcp1Stat != TRUE) return 0;
+	
 	print_sys_time();
 	printf("\n WIFISEND: ");
 	for (int i=0 ;  i<len; i++ ) {
@@ -97,6 +90,28 @@ uint32_t wifilk_wirte(uchar *wbuf, uint16_t len)
 	}
 	return count;
 }
+
+//_timer_id  	active_rebootwifi_timer_id;
+//static void rebootwifi
+//   (
+//      _timer_id id,
+//      void   *data_ptr,
+//      MQX_TICK_STRUCT_PTR tick_ptr
+//   )
+//{
+//   rf_led_blink();
+//}
+//
+//_timer_id active_rebootwifi_timer(void)
+//{
+//    MQX_TICK_STRUCT     active_rebootwifi_ticks;
+//	
+//	_timer_cancel(active_rebootwifi_timer_id);
+//	_time_get_ticks(&active_rebootwifi_ticks);
+//	_time_add_sec_to_ticks(&active_rebootwifi_ticks, 190); //1S*60=1min
+//	return _timer_start_oneshot_at_ticks(rebootwifi, 0, TIMER_KERNEL_TIME_MODE, &active_rebootwifi_ticks);
+//}
+
 
 void wifilk_read_task(uint32_t temp)
 {
@@ -150,7 +165,7 @@ void wifilk_read_task(uint32_t temp)
 			continue;
 		}
 
-		_time_delay(30);		
+		_time_delay(50);		
 		count = fread(buff, 1, 1024, fd_ittya_wifi_ptr);
 		
 		print_sys_time();
@@ -202,18 +217,18 @@ typedef struct COSMOS_FW_PROTOCOL_TYPE
 S->C	2000011c 02 05
 接收到服务器指令，Cosmos从下一步骤开始文件请求
 C->S	2000011c 02 05 0000(开始序号)  0001(请求序号) 
-S->C	2000011c 02 05 0001(数据序号)  0200(数据长度) (512B的文件内容) CRC(对512B内容做校验)
+S->C	2000011c 02 05 0001(数据序号)  021f(数据长度) (543B的文件内容) CRC(对543B内容做校验)
 C->S	2000011c 02 05 0001(完成序号)  0002(请求序号) 
-S->C	2000011c 02 05 0002(数据序号)  0200(数据长度) (512B的文件内容) CRC(对512B内容做校验)
+S->C	2000011c 02 05 0002(数据序号)  021f(数据长度) (543B的文件内容) CRC(对543B内容做校验)
 C->S	2000011c 02 05 0002(完成序号)  0003(请求序号)
-S->C	2000011c 02 05 0003(数据序号)  0200(数据长度) (512B的文件内容) CRC(对512B内容做校验)
+S->C	2000011c 02 05 0003(数据序号)  021f(数据长度) (543B的文件内容) CRC(对543B内容做校验)
 C->S	2000011c 02 05 0003(完成序号)  0004(请求序号)
-S->C	2000011c 02 05 0004(数据序号)  0200(数据长度) (512B的文件内容) CRC(对512B内容做校验)
+S->C	2000011c 02 05 0004(数据序号)  021f(数据长度) (543B的文件内容) CRC(对543B内容做校验)
 ... ...
 C->S	2000011c 02 05 0153(完成序号)  0154(请求序号)
-S->C	2000011c 02 05 0154(数据序号)  0013(数据长度) ( <512B文件内容) CRC(对<512B内容做校验)
+S->C	2000011c 02 05 0154(数据序号)  0013(数据长度) ( <543B文件内容) CRC(对<543B内容做校验)
 C->S	2000011c 02 05 0154(完成序号)  ffff(结束序号)
-Cosmos当检测到某个文件块小于512B时，结束文件写入，并向服务器发送结束的信号，用(0xffff)填充请求序号位
+Cosmos当检测到某个文件块小于543B时，结束文件写入，并向服务器发送结束的信号，用(0xffff)填充请求序号位
 */
 extern int32_t  Shell_update(int32_t argc, char *argv[] );
 void wifi_upgrade_cosmos(char *r_frame_ptr, uint32_t len)
@@ -260,6 +275,7 @@ void wifi_upgrade_cosmos(char *r_frame_ptr, uint32_t len)
 		}
 	}
 	/* 发送正常交互结果 */
+	_time_delay(100);
 	uplk_send((char *)&cosmos_fw_send_frame, sizeof(COSMOS_FW_SEND_TYPE_t));
 
 file_rw:

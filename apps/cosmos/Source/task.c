@@ -34,7 +34,7 @@ const TASK_TEMPLATE_STRUCT  MQX_template_list[] =
 {   
 	// Task Index,    		Function,       	Stack,      Priority, 	Name,             	Attributes,         	Param,  Time Slice 
 	{ MAIN_TASK,     		main_task,      	MAIN_STACK,	11,      	"main_task",      	MQX_AUTO_START_TASK,    0,      0 },
-	{ SHELL_TASK,    		shell_task,     	1024*5,  	12,         "Shell",    		0,					    0,      0 },//MQX_AUTO_START_TASK
+	{ SHELL_TASK,    		shell_task,     	1024*6,  	12,         "Shell",    		0,					    0,      0 },//MQX_AUTO_START_TASK
 	{ DBLK_AT_TASK,			dblk_at_task,		1024*6,		12,			"dblk_at_task",		0,						0,		0 },
 	{ UPLK_READ_TASK,		uplk_read_task, 	1024*12,	14, 	  	"uplk_read_task", 	0,			 		   	0,      0 },
 	{ UPLK_OFFLINE_TASK,	uplk_offline_task,	1024*8,		14,			"uplk_offline_task",0,						0,		0 },

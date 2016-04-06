@@ -246,31 +246,44 @@ uint32_t update_k64(char *r_frame_ptr)
 	return 0;
 }
 #if 1 /* 支持旧版服务器协议的配置 */
-/* 10 */
-uint32_t cfg_10_save(char *r_frame_ptr)
+#pragma   pack(1)
+typedef struct RF_ID_MODIFY_UPLK//10
 {
-	RF_ID_MODIFY_PTR	rf_id_modify_ptr= _mem_alloc_zero(sizeof(RF_ID_MODIFY_t));
-	PHUB_INFO_PTR		phubinfo_ptr 	= _mem_alloc_zero(sizeof(PHUB_INFO_t));
+	uint32_t	UID;
+	uint8_t		ObjDummy;
+	uint8_t		FuncCode;
+	uint8_t		RoleDummy;
+	uint16_t	DestId;
+	uint16_t	TargFfdId;
+	uint16_t	TargRfdId;
+	uint16_t	StartAddr;
+	uint16_t	NumOfRegs;
+	uint8_t		NumOfBytes;
+	uint16_t	TargModifyId;
+} RF_ID_MODIFY_UPLK_t, * RF_ID_MODIFY_UPLK_PTR;
+#pragma   pack()
+/* 10 */
+void cfg_10_save(char *r_frame_ptr)
+{
+	RF_ID_MODIFY_UPLK_PTR	rf_id_modify_ptr = NULL;
+	PHUB_INFO_t				phubinfo;
 	
-	_mem_copy(r_frame_ptr, rf_id_modify_ptr, sizeof(RFD_TABLE_t));
-	_mem_copy(PhubInfoPtr, phubinfo_ptr, sizeof(PHUB_INFO_t));
-	
+	_mem_copy(PhubInfoPtr, &phubinfo, sizeof(PHUB_INFO_t));
+	rf_id_modify_ptr = (RF_ID_MODIFY_UPLK_PTR)r_frame_ptr;
+
 	if (rf_id_modify_ptr->DestId == rf_id_modify_ptr->TargFfdId 
 		&& rf_id_modify_ptr->TargFfdId == rf_id_modify_ptr->TargRfdId
 			&& rf_id_modify_ptr->TargRfdId == rf_id_modify_ptr->DestId)
 	{
 		if (rf_id_modify_ptr->DestId != rf_id_modify_ptr->TargModifyId) {
-			phubinfo_ptr->RfCfg.CooId = rf_id_modify_ptr->TargModifyId;
-			phub_info_write(phubinfo_ptr, sizeof(PHUB_INFO_t));
+			phubinfo.RfCfg.CooId = rf_id_modify_ptr->TargModifyId;
+			phub_info_write(&phubinfo, sizeof(PHUB_INFO_t));
+			printf("go on...");
 		}else {
 			;
 		}
 	}
-	_mem_free(rf_id_modify_ptr);
-	_mem_free(phubinfo_ptr);
-	rf_id_modify_ptr = NULL;
-	phubinfo_ptr = NULL;
-	return 0;
+	return;
 }
 
 /* 51 */

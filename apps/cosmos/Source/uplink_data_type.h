@@ -68,7 +68,6 @@ extern bool WifiTcp2Stat;
 //#define UPLK_CFG_UpgradeCosmos_FUNC		0x02
 //#define UPLK_CFG_UpgradeNode_FUNC		0x30
 
-
 #define UPLK_RLTIME_43_FUNC				0x43
 #define UPLK_RLTIME_46_FUNC				0x46
 #define UPLK_RLTIME_04_FUNC				0x04
@@ -93,7 +92,6 @@ extern bool WifiTcp2Stat;
 //#define UPLK_CMD_REALTIME_Apn_OFFSET	6		//与Cosmos I兼容				[43]
 //#define UPLK_CMD_REALTIME_Len_OFFSET	7		//使用Cosmos I中的该标志位，用来发送uint8_t len，最大长度256	[8]
 
-
 typedef enum Cfg_Err_Code
 {
     CFG_OK,
@@ -107,11 +105,10 @@ typedef enum Cfg_Err_Code
 	CFG_ERR_UPDATEK64,
 }CFG_ERR_CODE;
 
-
 uint32_t download_cfgmix(char *r_fram_ptr);
 uint32_t cfg_51_save(char *r_frame_ptr);
 uint32_t cfg_66_save(char *r_frame_ptr);
-uint32_t cfg_10_save(char *r_frame_ptr);
+void cfg_10_save(char *r_frame_ptr);
 /*** uplink_mix data read ***/
 void uplink_recv_mix(char *buffer, uint32_t buflen, uint32_t socketID);
 uint32_t uplk_send(char *buffer, uint16_t buflen, ...);

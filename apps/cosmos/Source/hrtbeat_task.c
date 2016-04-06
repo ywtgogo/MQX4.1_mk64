@@ -2,9 +2,12 @@
 #include "uplink_data_type.h"
 #include "rf_type_cmd.h"
 #include "internal_mem.h"
+#include <timer.h>
 
 extern bool WifiUpgradeNow;
 extern uint32_t systime_get(void);
+//extern _timer_id active_rebootwifi_timer_id;
+//extern _timer_id active_rebootwifi_timer(void);
 
 void heart_beat_task(uint32_t parameter)
 {
@@ -39,9 +42,10 @@ void heart_beat_task(uint32_t parameter)
 			run_led_blink();
 		}
  
-		if (mqx_time.SECONDS%60 == 0){
+		if (mqx_time.SECONDS%10 == 0){
 			if (WifiUpgradeNow != TRUE)
 				uplk_send((char *)&heartbeat_pkg, sizeof(HEARTBEAT_TYPE_t));
+				//active_rebootwifi_timer_id = active_rebootwifi_timer();
 		}
 		if (mqx_time.SECONDS%3600 == 0){
 			systime_get();

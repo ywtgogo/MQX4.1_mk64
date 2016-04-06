@@ -1,6 +1,7 @@
 #include "global.h"
 #include "task.h"
 #include <shell.h>
+#include "rf_type_cmd.h"
 
 extern void reset_cpu();
 extern void reset_rf();
@@ -169,7 +170,7 @@ int32_t Shell_rf(int32_t argc, char *argv[])
 	
 	print_usage = Shell_check_help_request(argc, argv, &shorthelp );	
 	if(!print_usage) {
-		if (argc > 5 || argc == 1) {
+		if (argc > 6 || argc == 1) {
 			 printf("Error, invalid number of parameters\n");
 			 return_code = SHELL_EXIT_ERROR;
 			 print_usage=TRUE;
@@ -201,7 +202,7 @@ int32_t Shell_rf(int32_t argc, char *argv[])
 				cmd_setpvpoweron(ffdid, rfdid);
 			}	
 			else if (!strcasecmp(argv[1],"sync")){
-				;
+				; 
 			}
 			else if (!strcasecmp(argv[1],"setreg")){
 				if (argc == 6){
@@ -224,10 +225,6 @@ int32_t Shell_rf(int32_t argc, char *argv[])
 						cmd_getreg(ffdid, rfdid, reg2000);
 					}else if (!strcasecmp(argv[4],"3000")){
 						cmd_getreg(ffdid, rfdid, reg3000);
-					}else if (!strcasecmp(argv[4],"4000")){
-						cmd_getreg(ffdid, rfdid, reg4000);
-					}else if (!strcasecmp(argv[4],"5000")){
-						cmd_getreg(ffdid, rfdid, reg5000);
 					}else{
 						printf("\n请输入正确的地址参数");
 					}
@@ -249,9 +246,9 @@ int32_t Shell_rf(int32_t argc, char *argv[])
 			printf("  Commands: \n");
 			printf("    scan \n");
 			printf("        poll start \n");
-			printf("    setreg <setreg> <ffd> <rfd> <regaddr> <regval> \n");
+			printf("    setreg <ffd> <rfd> <regaddr> <regval> \n");
 			printf("        set rf reg \n");	
-			printf("    getreg <setreg> <ffd> <rfd> <regaddr> \n");
+			printf("    getreg <ffd> <rfd> <regaddr> \n");
 			printf("        read rf reg \n");				
 			printf("    auto_setffdroute \n");
 			printf("        set rf route by auto \n");	
